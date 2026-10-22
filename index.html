@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
+    <title>SYSTEM_CORE v5.2</title>
+    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Matrix Background Canvas -->
+    <canvas id="matrixCanvas"></canvas>
+    <div class="scanline"></div>
+    
+    <!-- Main Terminal Box -->
+    <div class="terminal-box" id="terminalBox">
+        <div class="header">
+            <span class="pulse">🔴</span> SYSTEM_CORE_ACCESS // ENCRYPTED_MODE
+            <span class="status-indicator" id="statusIndicator">● SECURE</span>
+        </div>
+        
+        <div class="console-log" id="consoleLog">
+            [SYSTEM] INITIALIZING ENCRYPTED_CHANNEL...<br>
+            [NETWORK] CONNECTING TO SECURE_SERVER...<br>
+            [CRYPTO] AES-256-GCM: ACTIVE<br>
+            [AUTH] TOKEN_MASKING: ENABLED
+        </div>
+
+        <!-- Main Input Area -->
+        <div class="typer-wrapper">
+            <textarea id="hackerTyper" placeholder="ENTER ENCRYPTED_MESSAGE..." maxlength="2048" autocomplete="off" spellcheck="false"></textarea>
+            <div class="char-counter" id="charCounter">CHARS: 0/2048</div>
+        </div>
+        
+        <!-- File Preview -->
+        <div class="preview-section">
+            <div class="section-header">
+                <i class="fas fa-file-code"></i> MEDIA_BUFFER
+                <span class="media-count" id="mediaCount">0/10</span>
+            </div>
+            <div id="previewContainer" class="preview-grid"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-row">
+            <label for="fileInput" class="hacker-btn">
+                <i class="fas fa-folder-open"></i> SELECT_MEDIA
+            </label>
+            <input type="file" id="fileInput" multiple>
+            
+            <button onclick="testTelegramConnection()" class="hacker-btn secondary">
+                <i class="fas fa-wifi"></i> TEST
+            </button>
+            
+            <button onclick="clearAll()" class="hacker-btn secondary">
+                <i class="fas fa-broom"></i> CLEAR
+            </button>
+            
+            <button id="sendBtn" onclick="sendToTelegram()" class="hacker-btn execute">
+                <i class="fas fa-paper-plane"></i> SEND
+            </button>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="loader-container">
+            <div id="loader-text">INITIALIZING TRANSMISSION...</div>
+            <div class="progress-bar">
+                <div id="p-fill" class="progress-fill"></div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+            <div class="encryption-status" id="encryptionStatus">
+                <i class="fas fa-lock"></i> ENCRYPTION: AES-256-ACTIVE
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile only: show/hide the decorative panels -->
+    <button type="button" id="panelsToggle" class="hacker-btn secondary panels-toggle" onclick="togglePanelsMobile()" aria-expanded="false">
+        <i class="fas fa-layer-group"></i> <span id="panelsToggleText">SHOW_PANELS</span>
+    </button>
+
+    <!-- ===== HIDDEN SECURITY PANELS ===== -->
+    
+    <!-- Diagnostic Panel (Top Right) -->
+    <div class="diagnostic-panel" id="diagnosticPanel">
+        <div class="panel-header">
+            <i class="fas fa-shield-alt"></i> SYSTEM_DIAGNOSTICS
+            <span class="panel-close" onclick="togglePanel('diagnosticPanel')">[−]</span>
+        </div>
+        <div class="panel-content">
+            <div class="log-line" id="scanStatus">
+                <span class="log-time">[12:34:56]</span> SCANNING_PORT:443...
+            </div>
+            <div class="config-display" id="configDisplay">
+                <!-- Fake config will be injected here -->
+            </div>
+            <div class="system-metrics">
+                <div class="metric">
+                    <span class="metric-label">CPU:</span>
+                    <div class="metric-bar"><div class="metric-fill" id="cpuMetric"></div></div>
+                    <span class="metric-value" id="cpuValue">87%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">RAM:</span>
+                    <div class="metric-bar"><div class="metric-fill" id="ramMetric"></div></div>
+                    <span class="metric-value" id="ramValue">64%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">NET:</span>
+                    <div class="metric-bar"><div class="metric-fill" id="netMetric"></div></div>
+                    <span class="metric-value" id="netValue">2.4MB/s</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Memory Dump Window (Bottom Left) -->
+    <div class="memory-window" id="memoryWindow">
+        <div class="window-header">
+            <i class="fas fa-memory"></i> LIVE_MEMORY_DUMP
+            <span class="panel-close" onclick="togglePanel('memoryWindow')">[−]</span>
+        </div>
+        <div id="memoryDump" class="window-content">
+            <!-- Memory addresses will be injected here -->
+        </div>
+        <div class="memory-footer">
+            <span class="mem-address" id="currentAddress">0x7FF89A2B3C4D</span>
+            <span class="mem-status">WRITE_PROTECTED</span>
+        </div>
+    </div>
+
+    <!-- Packet Stream (Right Side) -->
+    <div class="packet-stream" id="packetStream">
+        <div class="stream-header">
+            <i class="fas fa-network-wired"></i> PACKET_STREAM
+            <span class="panel-close" onclick="togglePanel('packetStream')">[−]</span>
+        </div>
+        <div id="packetContainer" class="stream-content">
+            <!-- Packets will be injected here -->
+        </div>
+        <div class="stream-footer">
+            <span class="packet-count" id="packetCount">PKTS: 0</span>
+            <span class="encryption-indicator">
+                <i class="fas fa-key"></i> TLS_1.3
+            </span>
+        </div>
+    </div>
+
+    <!-- Fake Command History (Left Side) -->
+    <div class="command-history" id="commandHistory">
+        <div class="history-header">
+            <i class="fas fa-terminal"></i> CMD_HISTORY
+            <span class="panel-close" onclick="togglePanel('commandHistory')">[−]</span>
+        </div>
+        <div class="history-content" id="historyContent">
+            <!-- Command history will be injected here -->
+        </div>
+    </div>
+
+    <!-- Popup Notification -->
+    <div id="hacker-popup" class="popup">
+        <div class="popup-header">
+            <i class="fas fa-exclamation-triangle"></i> SYSTEM_REPORT
+        </div>
+        <div id="popup-msg" class="popup-body"></div>
+        <div class="popup-footer" id="popupFooter">
+            <span class="popup-time" id="popupTime"></span>
+            PRIORITY: HIGH
+        </div>
+    </div>
+
+    <!-- Secret Overlay (Shown with Konami Code) -->
+    <div id="secretOverlay" class="secret-overlay">
+        <div class="secret-content">
+            <div class="secret-header">
+                ⚠ CRITICAL SYSTEM INFO ⚠
+            </div>
+            <div class="secret-body">
+                <pre id="secretInfo"></pre>
+            </div>
+            <div class="secret-footer">
+                <span class="countdown" id="countdown">10</span> SECONDS TO SELF_DESTRUCT
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="script.js?v=3"></script>
+</body>
+</html>
